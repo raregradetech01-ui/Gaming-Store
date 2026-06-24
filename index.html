@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retro Void Gaming Store - Shop</title>
+    <title>Retro Void Gaming Store</title>
     <style>
         :root {
             --primary: #00ffcc;
@@ -12,6 +12,10 @@
             --text-main: #ffffff;
         }
         
+        html {
+            scroll-behavior: smooth; /* Added for smooth anchor link scrolling */
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-dark);
@@ -35,6 +39,7 @@
             letter-spacing: 2px;
         }
 
+        /* Navigation Bar Styles */
         header nav {
             margin-top: 15px;
             display: flex;
@@ -52,7 +57,7 @@
             transition: 0.3s;
         }
 
-        header nav a:hover, header nav a.active {
+        header nav a:hover {
             color: var(--primary);
             text-shadow: 0 0 8px rgba(0, 255, 204, 0.6);
         }
@@ -67,6 +72,7 @@
             gap: 10px;
         }
 
+        /* Hero Section Styling */
         .hero-section {
             display: none;
             max-width: 1200px;
@@ -208,6 +214,7 @@
             text-align: center;
         }
 
+        /* Auth Screen Styles */
         #auth-container {
             max-width: 400px;
             margin: 100px auto;
@@ -232,7 +239,7 @@
     <header>
         <h1>Retro Void Gaming</h1>
         <nav>
-            <a href="index.html" class="active">Shop</a>
+            <a href="#storefront">Shop</a>
             <a href="deals.html">Deals</a>
             <a href="new-in-store.html">New In Store</a>
         </nav>
@@ -253,11 +260,27 @@
     </div>
 
     <div class="container" id="main-content">
+        
         <div style="flex: 3; display: flex; flex-direction: column; gap: 40px;">
+            
             <div>
-                <h2 style="color: var(--primary); margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 10px; padding-top: 20px;">Featured Shop</h2>
-                <div class="storefront" id="shop-container"></div>
+                <h2 id="storefront" style="color: var(--primary); margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 10px; padding-top: 20px;">Featured Shop</h2>
+                <div class="storefront" id="shop-container">
+                    </div>
             </div>
+
+            <div>
+                <h2 id="deals" style="color: var(--primary); margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 10px; padding-top: 20px;">Hot Deals</h2>
+                <div class="storefront" id="deals-container">
+                    </div>
+            </div>
+
+            <div>
+                <h2 id="new-in-store" style="color: var(--primary); margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 10px; padding-top: 20px;">New In Store</h2>
+                <div class="storefront" id="new-container">
+                    </div>
+            </div>
+
         </div>
 
         <div class="cart-section">
@@ -282,6 +305,7 @@
         import { getDatabase, ref, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
+        // Your provided Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyD6RZOdKavb2PCZDpiFFZJ5TVyZrdJTIiQ",
             authDomain: "gaming-store-1cb06.firebaseapp.com",
@@ -292,20 +316,32 @@
             measurementId: "G-5SY8LS8M4S"
         };
 
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
 
+        // Product Data upgraded with categories and cover images
         const products = [
+            // Shop
             { id: 1, name: "Cyberpunk Heist", price: 59.99, category: "shop", image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=400&q=80" },
             { id: 2, name: "Galactic Frontiers", price: 49.99, category: "shop", image: "https://images.unsplash.com/photo-1614294149010-950b698f72c0?auto=format&fit=crop&w=400&q=80" },
             { id: 3, name: "Medieval Souls", price: 39.99, category: "shop", image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=400&q=80" },
-            { id: 4, name: "Neon Racer 2088", price: 29.99, category: "shop", image: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=400&q=80" }
+            { id: 4, name: "Neon Racer 2088", price: 29.99, category: "shop", image: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=400&q=80" },
+            
+            // Deals
+            { id: 5, name: "Wasteland Survivor", price: 14.99, category: "deals", image: "https://images.unsplash.com/photo-1605901309584-818e25960b8f?auto=format&fit=crop&w=400&q=80" },
+            { id: 6, name: "Cosmic Tactics", price: 9.99, category: "deals", image: "https://images.unsplash.com/photo-1581162143431-7e885dcf5ed5?auto=format&fit=crop&w=400&q=80" },
+            
+            // New In Store
+            { id: 7, name: "Quantum Protocol", price: 69.99, category: "new", image: "https://images.unsplash.com/photo-1552820728-8b83bb6b773f?auto=format&fit=crop&w=400&q=80" },
+            { id: 8, name: "Shadow Syndicate", price: 59.99, category: "new", image: "https://images.unsplash.com/photo-1534423861386-85a16f5d13fd?auto=format&fit=crop&w=400&q=80" }
         ];
 
-        let cart = JSON.parse(localStorage.getItem('global_cart')) || [];
+        let cart = [];
 
+        // DOM Elements
         const cartItemsEl = document.getElementById('cart-items');
         const cartTotalEl = document.getElementById('cart-total');
         const checkoutBtn = document.getElementById('checkout-btn');
@@ -319,43 +355,51 @@
         const userProfileEl = document.getElementById('user-profile');
         const loginBtn = document.getElementById('login-btn');
 
+        // Manage Authentication State Changes
         onAuthStateChanged(auth, (user) => {
             if (user) {
+                // User is signed in -> show store and hero section, hide auth screen
                 authContainer.style.display = 'none';
                 mainContent.style.display = 'flex';
                 heroBannerContainer.style.display = 'block';
                 
+                // Set Up Navigation Header UI
                 userProfileEl.innerHTML = `
                     <span>User: <strong>${user.displayName}</strong></span>
                     <button id="logout-btn" style="width: auto; padding: 5px 10px; font-size: 0.8rem;">Logout</button>
                 `;
                 
+                // Pre-fill checkout name field with Google Profile display name
                 customerNameInput.value = user.displayName;
-                updateCartUI();
 
+                // Bind functional Logout behavior
                 document.getElementById('logout-btn').addEventListener('click', () => {
-                    localStorage.removeItem('global_cart');
                     signOut(auth);
                 });
             } else {
+                // User is signed out -> hide store and hero section, show auth screen
                 authContainer.style.display = 'block';
                 mainContent.style.display = 'none';
                 heroBannerContainer.style.display = 'none';
                 userProfileEl.innerHTML = '';
+                
+                // Clear state clean up
                 cart = [];
-                localStorage.removeItem('global_cart');
                 updateCartUI();
             }
         });
 
+        // Trigger Google Login Pop-up Window
         loginBtn.addEventListener('click', async () => {
             try {
                 await signInWithPopup(auth, provider);
             } catch (error) {
+                console.error("Auth Error: ", error);
                 alert("Could not complete authentication: " + error.message);
             }
         });
 
+        // Smart Render Function to populate categories into their specific grids
         function renderCategory(category, containerId) {
             const container = document.getElementById(containerId);
             const categoryProducts = products.filter(p => p.category === category);
@@ -367,35 +411,33 @@
                     <img src="${product.image}" alt="${product.name}">
                     <h3 style="margin: 10px 0;">${product.name}</h3>
                     <div class="price">$${product.price}</div>
-                    <button class="add-to-cart-btn" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">Add to Cart</button>
+                    <button onclick="addToCart('${product.id}', '${product.name}', ${product.price})">Add to Cart</button>
                 `;
                 container.appendChild(card);
             });
         }
 
+        // Render all sections on load
         renderCategory("shop", "shop-container");
+        renderCategory("deals", "deals-container");
+        renderCategory("new", "new-container");
 
-        document.addEventListener('click', function(e) {
-            if(e.target && e.target.classList.contains('add-to-cart-btn')) {
-                const id = e.target.getAttribute('data-id');
-                const name = e.target.getAttribute('data-name');
-                const price = parseFloat(e.target.getAttribute('data-price'));
-                cart.push({ id, name, price });
-                localStorage.setItem('global_cart', JSON.stringify(cart));
-                updateCartUI();
-            }
-        });
+        // Add to Cart Logic
+        window.addToCart = (id, name, price) => {
+            cart.push({ id, name, price });
+            updateCartUI();
+        };
 
+        // Update Cart UI
         function updateCartUI() {
             if (cart.length === 0) {
                 cartItemsEl.innerHTML = '<p style="color: #888; font-size: 0.9rem;">Cart is empty</p>';
                 checkoutBtn.disabled = true;
                 checkoutForm.style.display = 'none';
-                cartTotalEl.innerText = "0.00";
             } else {
                 cartItemsEl.innerHTML = '';
                 let total = 0;
-                cart.forEach((item) => {
+                cart.forEach((item, index) => {
                     total += item.price;
                     cartItemsEl.innerHTML += `
                         <div class="cart-item">
@@ -410,6 +452,7 @@
             }
         }
 
+        // Checkout Logic (Save to Firebase Realtime Database)
         checkoutBtn.addEventListener('click', async () => {
             const customerName = customerNameInput.value.trim();
             if (!customerName) {
@@ -423,7 +466,7 @@
             statusMessage.innerText = "Saving order to database...";
 
             const orderData = {
-                uid: auth.currentUser ? auth.currentUser.uid : "anonymous",
+                uid: auth.currentUser ? auth.currentUser.uid : "anonymous", // capture signed-in user's system ID
                 customer: customerName,
                 items: cart,
                 total: parseFloat(cartTotalEl.innerText),
@@ -437,12 +480,15 @@
                 statusMessage.style.color = "var(--primary)";
                 statusMessage.innerText = "Success! Order saved to Firebase.";
                 
+                // Reset Cart
                 cart = [];
-                localStorage.removeItem('global_cart');
+                // Re-populate original name 
                 customerNameInput.value = auth.currentUser ? auth.currentUser.displayName : '';
                 updateCartUI();
                 checkoutBtn.innerText = "Checkout & Save Order";
+
             } catch (error) {
+                console.error("Error writing to database: ", error);
                 statusMessage.style.color = "#ff4444";
                 statusMessage.innerText = "Error: " + error.message;
                 checkoutBtn.disabled = false;
