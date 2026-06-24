@@ -35,6 +35,29 @@
             letter-spacing: 2px;
         }
 
+        /* Navigation Bar Styles */
+        header nav {
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+        }
+
+        header nav a {
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+            transition: 0.3s;
+        }
+
+        header nav a:hover {
+            color: var(--primary);
+            text-shadow: 0 0 8px rgba(0, 255, 204, 0.6);
+        }
+
         #user-profile {
             position: absolute;
             right: 20px;
@@ -45,12 +68,55 @@
             gap: 10px;
         }
 
+        /* Hero Section Styling */
+        .hero-section {
+            display: none; /* Hidden by default until login */
+            max-width: 1200px;
+            margin: 20px auto 0 auto;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        .hero-banner {
+            background-image: linear-gradient(rgba(18, 18, 18, 0.4), rgba(18, 18, 18, 0.85)), 
+                             url('https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80');
+            background-size: cover;
+            background-position: center;
+            height: 320px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 40px;
+            box-sizing: border-box;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
+        }
+
+        .hero-banner h2 {
+            color: var(--primary);
+            font-size: 2.8rem;
+            margin: 0 0 10px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
+        }
+
+        .hero-banner p {
+            color: #ccc;
+            margin: 0;
+            font-size: 1.2rem;
+            max-width: 500px;
+            line-height: 1.5;
+        }
+
         .container {
             display: none; /* Hidden by default until login */
             max-width: 1200px;
             margin: 20px auto;
             padding: 0 20px;
             gap: 20px;
+            box-sizing: border-box;
         }
 
         .storefront {
@@ -166,6 +232,11 @@
 
     <header>
         <h1>Retro Void Gaming</h1>
+        <nav>
+            <a href="#storefront">Shop</a>
+            <a href="#">Deals</a>
+            <a href="#">New In Store</a>
+        </nav>
         <div id="user-profile"></div>
     </header>
 
@@ -173,6 +244,13 @@
         <h2 style="color: var(--primary); margin-bottom: 10px;">Access Dashboard</h2>
         <p style="color: #aaa; font-size: 0.9rem;">Please sign in with your Google account to browse the store and manage orders.</p>
         <button id="login-btn">Sign in with Google</button>
+    </div>
+
+    <div class="hero-section" id="hero-banner-container">
+        <div class="hero-banner">
+            <h2>Level Up Your Collection</h2>
+            <p>Discover exclusive premium titles, legendary gear, and ultimate discounts curated for elite gamers.</p>
+        </div>
     </div>
 
     <div class="container" id="main-content">
@@ -239,15 +317,17 @@
         
         const authContainer = document.getElementById('auth-container');
         const mainContent = document.getElementById('main-content');
+        const heroBannerContainer = document.getElementById('hero-banner-container');
         const userProfileEl = document.getElementById('user-profile');
         const loginBtn = document.getElementById('login-btn');
 
         // Manage Authentication State Changes
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // User is signed in -> show store, hide auth screen
+                // User is signed in -> show store and hero section, hide auth screen
                 authContainer.style.display = 'none';
                 mainContent.style.display = 'flex';
+                heroBannerContainer.style.display = 'block';
                 
                 // Set Up Navigation Header UI
                 userProfileEl.innerHTML = `
@@ -263,9 +343,10 @@
                     signOut(auth);
                 });
             } else {
-                // User is signed out -> hide store, show auth screen
+                // User is signed out -> hide store and hero section, show auth screen
                 authContainer.style.display = 'block';
                 mainContent.style.display = 'none';
+                heroBannerContainer.style.display = 'none';
                 userProfileEl.innerHTML = '';
                 
                 // Clear state clean up
