@@ -12,6 +12,10 @@
             --text-main: #ffffff;
         }
         
+        html {
+            scroll-behavior: smooth; /* Added for smooth anchor link scrolling */
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-dark);
@@ -70,7 +74,7 @@
 
         /* Hero Section Styling */
         .hero-section {
-            display: none; /* Hidden by default until login */
+            display: none;
             max-width: 1200px;
             margin: 20px auto 0 auto;
             padding: 0 20px;
@@ -111,7 +115,7 @@
         }
 
         .container {
-            display: none; /* Hidden by default until login */
+            display: none;
             max-width: 1200px;
             margin: 20px auto;
             padding: 0 20px;
@@ -120,7 +124,6 @@
         }
 
         .storefront {
-            flex: 3;
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
@@ -146,6 +149,7 @@
             object-fit: cover;
             border-radius: 4px;
             background-color: #333;
+            margin-bottom: 15px;
         }
 
         .price {
@@ -179,6 +183,8 @@
             border-radius: 8px;
             border: 1px solid #333;
             height: fit-content;
+            position: sticky;
+            top: 20px;
         }
 
         .cart-item {
@@ -234,8 +240,8 @@
         <h1>Retro Void Gaming</h1>
         <nav>
             <a href="#storefront">Shop</a>
-            <a href="#">Deals</a>
-            <a href="#">New In Store</a>
+            <a href="#deals">Deals</a>
+            <a href="#new-in-store">New In Store</a>
         </nav>
         <div id="user-profile"></div>
     </header>
@@ -254,8 +260,28 @@
     </div>
 
     <div class="container" id="main-content">
-        <div class="storefront" id="storefront">
+        
+        <div style="flex: 3; display: flex; flex-direction: column; gap: 40px;">
+            
+            <div>
+                <h2 id="storefront" style="color: var(--primary); margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 10px; padding-top: 20px;">Featured Shop</h2>
+                <div class="storefront" id="shop-container">
+                    </div>
             </div>
+
+            <div>
+                <h2 id="deals" style="color: var(--primary); margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 10px; padding-top: 20px;">Hot Deals</h2>
+                <div class="storefront" id="deals-container">
+                    </div>
+            </div>
+
+            <div>
+                <h2 id="new-in-store" style="color: var(--primary); margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 10px; padding-top: 20px;">New In Store</h2>
+                <div class="storefront" id="new-container">
+                    </div>
+            </div>
+
+        </div>
 
         <div class="cart-section">
             <h2>Your Cart</h2>
@@ -296,18 +322,26 @@
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
 
-        // Dummy Product Data
+        // Product Data upgraded with categories and cover images
         const products = [
-            { id: 1, name: "Cyberpunk Heist", price: 59.99 },
-            { id: 2, name: "Galactic Frontiers", price: 49.99 },
-            { id: 3, name: "Medieval Souls", price: 39.99 },
-            { id: 4, name: "Neon Racer 2088", price: 29.99 }
+            // Shop
+            { id: 1, name: "Cyberpunk Heist", price: 59.99, category: "shop", image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=400&q=80" },
+            { id: 2, name: "Galactic Frontiers", price: 49.99, category: "shop", image: "https://images.unsplash.com/photo-1614294149010-950b698f72c0?auto=format&fit=crop&w=400&q=80" },
+            { id: 3, name: "Medieval Souls", price: 39.99, category: "shop", image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=400&q=80" },
+            { id: 4, name: "Neon Racer 2088", price: 29.99, category: "shop", image: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=400&q=80" },
+            
+            // Deals
+            { id: 5, name: "Wasteland Survivor", price: 14.99, category: "deals", image: "https://images.unsplash.com/photo-1605901309584-818e25960b8f?auto=format&fit=crop&w=400&q=80" },
+            { id: 6, name: "Cosmic Tactics", price: 9.99, category: "deals", image: "https://images.unsplash.com/photo-1581162143431-7e885dcf5ed5?auto=format&fit=crop&w=400&q=80" },
+            
+            // New In Store
+            { id: 7, name: "Quantum Protocol", price: 69.99, category: "new", image: "https://images.unsplash.com/photo-1552820728-8b83bb6b773f?auto=format&fit=crop&w=400&q=80" },
+            { id: 8, name: "Shadow Syndicate", price: 59.99, category: "new", image: "https://images.unsplash.com/photo-1534423861386-85a16f5d13fd?auto=format&fit=crop&w=400&q=80" }
         ];
 
         let cart = [];
 
         // DOM Elements
-        const storefrontEl = document.getElementById('storefront');
         const cartItemsEl = document.getElementById('cart-items');
         const cartTotalEl = document.getElementById('cart-total');
         const checkoutBtn = document.getElementById('checkout-btn');
@@ -365,18 +399,28 @@
             }
         });
 
-        // Render Products
-        products.forEach(product => {
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = `
-                <div style="height: 150px; background: #333; margin-bottom: 15px; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #555;">🎮 Cover Image</div>
-                <h3>${product.name}</h3>
-                <div class="price">$${product.price}</div>
-                <button onclick="addToCart('${product.id}', '${product.name}', ${product.price})">Add to Cart</button>
-            `;
-            storefrontEl.appendChild(card);
-        });
+        // Smart Render Function to populate categories into their specific grids
+        function renderCategory(category, containerId) {
+            const container = document.getElementById(containerId);
+            const categoryProducts = products.filter(p => p.category === category);
+            
+            categoryProducts.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <img src="${product.image}" alt="${product.name}">
+                    <h3 style="margin: 10px 0;">${product.name}</h3>
+                    <div class="price">$${product.price}</div>
+                    <button onclick="addToCart('${product.id}', '${product.name}', ${product.price})">Add to Cart</button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Render all sections on load
+        renderCategory("shop", "shop-container");
+        renderCategory("deals", "deals-container");
+        renderCategory("new", "new-container");
 
         // Add to Cart Logic
         window.addToCart = (id, name, price) => {
