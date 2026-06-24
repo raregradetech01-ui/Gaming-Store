@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro Void Gaming Store</title>
+    <style>
+        :root {
+            --primary: #00ffcc;
+            --bg-dark: #121212;
+            --bg-card: #1e1e1e;
+            --text-main: #ffffff;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #000;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid var(--primary);
+            position: relative;
+        }
+
+        h1 {
+            margin: 0;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        #user-profile {
+            position: absolute;
+            right: 20px;
+            top: 25px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .container {
+            display: none; /* Hidden by default until login */
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+            gap: 20px;
+        }
+
+        .storefront {
+            flex: 3;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+
+        .card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 4px;
+            background-color: #333;
+        }
+
+        .price {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+
+        button {
+            background-color: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: 0.3s;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: var(--primary);
+            color: #000;
+        }
+
+        .cart-section {
+            flex: 1;
+            background-color: var(--bg-card);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            height: fit-content;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+        }
+
+        #checkout-btn {
+            margin-top: 20px;
+            background-color: var(--primary);
+            color: #000;
+        }
+
+        #checkout-btn:disabled {
+            background-color: #555;
+            border-color: #555;
+            color: #888;
+            cursor: not-allowed;
+        }
+
+        #status-message {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        /* Auth Screen Styles */
+        #auth-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 40px 20px;
+            background-color: var(--bg-card);
+            border: 1px solid #333;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        #login-btn {
+            background-color: var(--primary);
+            color: #000;
+            font-size: 1.1rem;
+            margin-top: 25px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Retro Void Gaming</h1>
+        <div id="user-profile"></div>
+    </header>
+
+    <div id="auth-container">
+        <h2 style="color: var(--primary); margin-bottom: 10px;">Access Dashboard</h2>
+        <p style="color: #aaa; font-size: 0.9rem;">Please sign in with your Google account to browse the store and manage orders.</p>
+        <button id="login-btn">Sign in with Google</button>
+    </div>
+
+    <div class="container" id="main-content">
+        <div class="storefront" id="storefront">
+            </div>
+
+        <div class="cart-section">
+            <h2>Your Cart</h2>
+            <div id="cart-items">
+                <p style="color: #888; font-size: 0.9rem;">Cart is empty</p>
+            </div>
+            <h3>Total: $<span id="cart-total">0.00</span></h3>
+            
+            <div id="checkout-form" style="display: none; margin-top: 15px;">
+                <label for="customer-name" style="display: block; margin-bottom: 5px;">Customer Name:</label>
+                <input type="text" id="customer-name" placeholder="Enter your name" style="width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box; background: #333; border: 1px solid #555; color: white;">
+            </div>
+
+            <button id="checkout-btn" disabled>Checkout & Save Order</button>
+            <div id="status-message"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getDatabase, ref, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+        // Your provided Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD6RZOdKavb2PCZDpiFFZJ5TVyZrdJTIiQ",
+            authDomain: "gaming-store-1cb06.firebaseapp.com",
+            projectId: "gaming-store-1cb06",
+            storageBucket: "gaming-store-1cb06.firebasestorage.app",
+            messagingSenderId: "856025195800",
+            appId: "1:856025195800:web:8277ab9ee93ad25dcf2a6d",
+            measurementId: "G-5SY8LS8M4S"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        // Dummy Product Data
+        const products = [
+            { id: 1, name: "Cyberpunk Heist", price: 59.99 },
+            { id: 2, name: "Galactic Frontiers", price: 49.99 },
+            { id: 3, name: "Medieval Souls", price: 39.99 },
+            { id: 4, name: "Neon Racer 2088", price: 29.99 }
+        ];
+
+        let cart = [];
+
+        // DOM Elements
+        const storefrontEl = document.getElementById('storefront');
+        const cartItemsEl = document.getElementById('cart-items');
+        const cartTotalEl = document.getElementById('cart-total');
+        const checkoutBtn = document.getElementById('checkout-btn');
+        const checkoutForm = document.getElementById('checkout-form');
+        const customerNameInput = document.getElementById('customer-name');
+        const statusMessage = document.getElementById('status-message');
+        
+        const authContainer = document.getElementById('auth-container');
+        const mainContent = document.getElementById('main-content');
+        const userProfileEl = document.getElementById('user-profile');
+        const loginBtn = document.getElementById('login-btn');
+
+        // Manage Authentication State Changes
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in -> show store, hide auth screen
+                authContainer.style.display = 'none';
+                mainContent.style.display = 'flex';
+                
+                // Set Up Navigation Header UI
+                userProfileEl.innerHTML = `
+                    <span>User: <strong>${user.displayName}</strong></span>
+                    <button id="logout-btn" style="width: auto; padding: 5px 10px; font-size: 0.8rem;">Logout</button>
+                `;
+                
+                // Pre-fill checkout name field with Google Profile display name
+                customerNameInput.value = user.displayName;
+
+                // Bind functional Logout behavior
+                document.getElementById('logout-btn').addEventListener('click', () => {
+                    signOut(auth);
+                });
+            } else {
+                // User is signed out -> hide store, show auth screen
+                authContainer.style.display = 'block';
+                mainContent.style.display = 'none';
+                userProfileEl.innerHTML = '';
+                
+                // Clear state clean up
+                cart = [];
+                updateCartUI();
+            }
+        });
+
+        // Trigger Google Login Pop-up Window
+        loginBtn.addEventListener('click', async () => {
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                console.error("Auth Error: ", error);
+                alert("Could not complete authentication: " + error.message);
+            }
+        });
+
+        // Render Products
+        products.forEach(product => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <div style="height: 150px; background: #333; margin-bottom: 15px; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #555;">🎮 Cover Image</div>
+                <h3>${product.name}</h3>
+                <div class="price">$${product.price}</div>
+                <button onclick="addToCart('${product.id}', '${product.name}', ${product.price})">Add to Cart</button>
+            `;
+            storefrontEl.appendChild(card);
+        });
+
+        // Add to Cart Logic
+        window.addToCart = (id, name, price) => {
+            cart.push({ id, name, price });
+            updateCartUI();
+        };
+
+        // Update Cart UI
+        function updateCartUI() {
+            if (cart.length === 0) {
+                cartItemsEl.innerHTML = '<p style="color: #888; font-size: 0.9rem;">Cart is empty</p>';
+                checkoutBtn.disabled = true;
+                checkoutForm.style.display = 'none';
+            } else {
+                cartItemsEl.innerHTML = '';
+                let total = 0;
+                cart.forEach((item, index) => {
+                    total += item.price;
+                    cartItemsEl.innerHTML += `
+                        <div class="cart-item">
+                            <span>${item.name}</span>
+                            <span>$${item.price}</span>
+                        </div>
+                    `;
+                });
+                cartTotalEl.innerText = total.toFixed(2);
+                checkoutBtn.disabled = false;
+                checkoutForm.style.display = 'block';
+            }
+        }
+
+        // Checkout Logic (Save to Firebase Realtime Database)
+        checkoutBtn.addEventListener('click', async () => {
+            const customerName = customerNameInput.value.trim();
+            if (!customerName) {
+                alert("Please enter your name before checking out.");
+                return;
+            }
+
+            checkoutBtn.disabled = true;
+            checkoutBtn.innerText = "Processing...";
+            statusMessage.style.color = "white";
+            statusMessage.innerText = "Saving order to database...";
+
+            const orderData = {
+                uid: auth.currentUser ? auth.currentUser.uid : "anonymous", // capture signed-in user's system ID
+                customer: customerName,
+                items: cart,
+                total: parseFloat(cartTotalEl.innerText),
+                timestamp: serverTimestamp()
+            };
+
+            try {
+                const ordersRef = ref(database, 'orders');
+                await push(ordersRef, orderData);
+                
+                statusMessage.style.color = "var(--primary)";
+                statusMessage.innerText = "Success! Order saved to Firebase.";
+                
+                // Reset Cart
+                cart = [];
+                // Re-populate original name 
+                customerNameInput.value = auth.currentUser ? auth.currentUser.displayName : '';
+                updateCartUI();
+                checkoutBtn.innerText = "Checkout & Save Order";
+
+            } catch (error) {
+                console.error("Error writing to database: ", error);
+                statusMessage.style.color = "#ff4444";
+                statusMessage.innerText = "Error: " + error.message;
+                checkoutBtn.disabled = false;
+                checkoutBtn.innerText = "Checkout & Save Order";
+            }
+        });
+    </script>
+</body>
+</html>
