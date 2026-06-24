@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro Void Gaming Store - New In Store</title>
+    <style>
+        /* Exact styles imported directly from original template */
+        :root {
+            --primary: #00ffcc;
+            --bg-dark: #121212;
+            --bg-card: #1e1e1e;
+            --text-main: #ffffff;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #000;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid var(--primary);
+            position: relative;
+        }
+
+        h1 {
+            margin: 0;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        header nav {
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+        }
+
+        header nav a {
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+            transition: 0.3s;
+        }
+
+        header nav a:hover, header nav a.active {
+            color: var(--primary);
+            text-shadow: 0 0 8px rgba(0, 255, 204, 0.6);
+        }
+
+        #user-profile {
+            position: absolute;
+            right: 20px;
+            top: 25px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hero-section {
+            display: none;
+            max-width: 1200px;
+            margin: 20px auto 0 auto;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        .hero-banner {
+            background-image: linear-gradient(rgba(18, 18, 18, 0.4), rgba(18, 18, 18, 0.85)), 
+                             url('https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80');
+            background-size: cover;
+            background-position: center;
+            height: 320px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 40px;
+            box-sizing: border-box;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
+        }
+
+        .hero-banner h2 {
+            color: var(--primary);
+            font-size: 2.8rem;
+            margin: 0 0 10px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
+        }
+
+        .hero-banner p {
+            color: #ccc;
+            margin: 0;
+            font-size: 1.2rem;
+            max-width: 500px;
+            line-height: 1.5;
+        }
+
+        .container {
+            display: none;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+            gap: 20px;
+            box-sizing: border-box;
+        }
+
+        .storefront {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+
+        .card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 4px;
+            background-color: #333;
+            margin-bottom: 15px;
+        }
+
+        .price {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+
+        button {
+            background-color: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: 0.3s;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: var(--primary);
+            color: #000;
+        }
+
+        .cart-section {
+            flex: 1;
+            background-color: var(--bg-card);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+        }
+
+        #checkout-btn {
+            margin-top: 20px;
+            background-color: var(--primary);
+            color: #000;
+        }
+
+        #checkout-btn:disabled {
+            background-color: #555;
+            border-color: #555;
+            color: #888;
+            cursor: not-allowed;
+        }
+
+        #status-message {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        #auth-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 40px 20px;
+            background-color: var(--bg-card);
+            border: 1px solid #333;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        #login-btn {
+            background-color: var(--primary);
+            color: #000;
+            font-size: 1.1rem;
+            margin-top: 25px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Retro Void Gaming</h1>
+        <nav>
+            <a href="index.html">Shop</a>
+            <a href="deals.html">Deals</a>
+            <a href="new-in-store.html" class="active">New In Store</a>
+        </nav>
+        <div id="user-profile"></div>
+    </header>
+
+    <div id="auth-container">
+        <h2 style="color: var(--primary); margin-bottom: 10px;">Access Dashboard</h2>
+        <p style="color: #aaa; font-size: 0.9rem;">Please sign in with your Google account to browse the store and manage orders.</p>
+        <button id="login-btn">Sign in with Google</button>
+    </div>
+
+    <div class="hero-section" id="hero-banner-container">
+        <div class="hero-banner">
+            <h2>Level Up Your Collection</h2>
+            <p>Discover exclusive premium titles, legendary gear, and ultimate discounts curated for elite gamers.</p>
+        </div>
+    </div>
+
+    <div class="container" id="main-content">
+        <div style="flex: 3; display: flex; flex-direction: column; gap: 40px;">
+            <div>
+                <h2 style="color: var(--primary); margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 10px; padding-top: 20px;">New In Store</h2>
+                <div class="storefront" id="new-container"></div>
+            </div>
+        </div>
+
+        <div class="cart-section">
+            <h2>Your Cart</h2>
+            <div id="cart-items">
+                <p style="color: #888; font-size: 0.9rem;">Cart is empty</p>
+            </div>
+            <h3>Total: $<span id="cart-total">0.00</span></h3>
+            
+            <div id="checkout-form" style="display: none; margin-top: 15px;">
+                <label for="customer-name" style="display: block; margin-bottom: 5px;">Customer Name:</label>
+                <input type="text" id="customer-name" placeholder="Enter your name" style="width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box; background: #333; border: 1px solid #555; color: white;">
+            </div>
+
+            <button id="checkout-btn" disabled>Checkout & Save Order</button>
+            <div id="status-message"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getDatabase, ref, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD6RZOdKavb2PCZDpiFFZJ5TVyZrdJTIiQ",
+            authDomain: "gaming-store-1cb06.firebaseapp.com",
+            projectId: "gaming-store-1cb06",
+            storageBucket: "gaming-store-1cb06.firebasestorage.app",
+            messagingSenderId: "856025195800",
+            appId: "1:856025195800:web:8277ab9ee93ad25dcf2a6d",
+            measurementId: "G-5SY8LS8M4S"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        const products = [
+            { id: 7, name: "Quantum Protocol", price: 69.99, category: "new", image: "https://images.unsplash.com/photo-1552820728-8b83bb6b773f?auto=format&fit=crop&w=400&q=80" },
+            { id: 8, name: "Shadow Syndicate", price: 59.99, category: "new", image: "https://images.unsplash.com/photo-1534423861386-85a16f5d13fd?auto=format&fit=crop&w=400&q=80" }
+        ];
+
+        let cart = JSON.parse(localStorage.getItem('global_cart')) || [];
+
+        const cartItemsEl = document.getElementById('cart-items');
+        const cartTotalEl = document.getElementById('cart-total');
+        const checkoutBtn = document.getElementById('checkout-btn');
+        const checkoutForm = document.getElementById('checkout-form');
+        const customerNameInput = document.getElementById('customer-name');
+        const statusMessage = document.getElementById('status-message');
+        
+        const authContainer = document.getElementById('auth-container');
+        const mainContent = document.getElementById('main-content');
+        const heroBannerContainer = document.getElementById('hero-banner-container');
+        const userProfileEl = document.getElementById('user-profile');
+        const loginBtn = document.getElementById('login-btn');
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                authContainer.style.display = 'none';
+                mainContent.style.display = 'flex';
+                heroBannerContainer.style.display = 'block';
+                
+                userProfileEl.innerHTML = `
+                    <span>User: <strong>${user.displayName}</strong></span>
+                    <button id="logout-btn" style="width: auto; padding: 5px 10px; font-size: 0.8rem;">Logout</button>
+                `;
+                
+                customerNameInput.value = user.displayName;
+                updateCartUI();
+
+                document.getElementById('logout-btn').addEventListener('click', () => {
+                    localStorage.removeItem('global_cart');
+                    signOut(auth);
+                });
+            } else {
+                authContainer.style.display = 'block';
+                mainContent.style.display = 'none';
+                heroBannerContainer.style.display = 'none';
+                userProfileEl.innerHTML = '';
+                cart = [];
+                localStorage.removeItem('global_cart');
+                updateCartUI();
+            }
+        });
+
+        loginBtn.addEventListener('click', async () => {
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                alert("Could not complete authentication: " + error.message);
+            }
+        });
+
+        function renderCategory(category, containerId) {
+            const container = document.getElementById(containerId);
+            const categoryProducts = products.filter(p => p.category === category);
+            
+            categoryProducts.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <img src="${product.image}" alt="${product.name}">
+                    <h3 style="margin: 10px 0;">${product.name}</h3>
+                    <div class="price">$${product.price}</div>
+                    <button class="add-to-cart-btn" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">Add to Cart</button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        renderCategory("new", "new-container");
+
+        document.addEventListener('click', function(e) {
+            if(e.target && e.target.classList.contains('add-to-cart-btn')) {
+                const id = e.target.getAttribute('data-id');
+                const name = e.target.getAttribute('data-name');
+                const price = parseFloat(e.target.getAttribute('data-price'));
+                cart.push({ id, name, price });
+                localStorage.setItem('global_cart', JSON.stringify(cart));
+                updateCartUI();
+            }
+        });
+
+        function updateCartUI() {
+            if (cart.length === 0) {
+                cartItemsEl.innerHTML = '<p style="color: #888; font-size: 0.9rem;">Cart is empty</p>';
+                checkoutBtn.disabled = true;
+                checkoutForm.style.display = 'none';
+                cartTotalEl.innerText = "0.00";
+            } else {
+                cartItemsEl.innerHTML = '';
+                let total = 0;
+                cart.forEach((item) => {
+                    total += item.price;
+                    cartItemsEl.innerHTML += `
+                        <div class="cart-item">
+                            <span>${item.name}</span>
+                            <span>$${item.price}</span>
+                        </div>
+                    `;
+                });
+                cartTotalEl.innerText = total.toFixed(2);
+                checkoutBtn.disabled = false;
+                checkoutForm.style.display = 'block';
+            }
+        }
+
+        checkoutBtn.addEventListener('click', async () => {
+            const customerName = customerNameInput.value.trim();
+            if (!customerName) {
+                alert("Please enter your name before checking out.");
+                return;
+            }
+
+            checkoutBtn.disabled = true;
+            checkoutBtn.innerText = "Processing...";
+            statusMessage.style.color = "white";
+            statusMessage.innerText = "Saving order to database...";
+
+            const orderData = {
+                uid: auth.currentUser ? auth.currentUser.uid : "anonymous",
+                customer: customerName,
+                items: cart,
+                total: parseFloat(cartTotalEl.innerText),
+                timestamp: serverTimestamp()
+            };
+
+            try {
+                const ordersRef = ref(database, 'orders');
+                await push(ordersRef, orderData);
+                
+                statusMessage.style.color = "var(--primary)";
+                statusMessage.innerText = "Success! Order saved to Firebase.";
+                
+                cart = [];
+                localStorage.removeItem('global_cart');
+                customerNameInput.value = auth.currentUser ? auth.currentUser.displayName : '';
+                updateCartUI();
+                checkoutBtn.innerText = "Checkout & Save Order";
+            } catch (error) {
+                statusMessage.style.color = "#ff4444";
+                statusMessage.innerText = "Error: " + error.message;
+                checkoutBtn.disabled = false;
+                checkoutBtn.innerText = "Checkout & Save Order";
+            }
+        });
+    </script>
+</body>
+</html>
